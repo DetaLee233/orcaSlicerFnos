@@ -112,7 +112,7 @@ bash build_fpk.sh
 | VNC 用户名/密码 | 容器 `start.sh`、compose 环境变量；网关注入用 `gateway.py` 的 `ORCA_AUTH` | `abc` / `orcaslicer` |
 | 端口 | 容器内 `3000`，宿主/网关上流 `13000` | — |
 | 分辨率 | `RESOLUTION`（配合 `resize=remote` 自适应） | `1920x1080` |
-| WebKit 内存优化 | `start.sh`：`WEBKIT_DISABLE_COMPOSITING_MODE` 等 | 已开 |
+| 内存占用 | 内嵌 WebKit 浏览器约占 0.7G，总 ~1.1G；**不要**用 `WEBKIT_DISABLE_*` 省内存（会导致登录框无法输入） | 默认 |
 
 > 改密码要**同时**改 `VNC_PASSWORD` 和 `gateway.py` 的 `ORCA_AUTH`，否则网关注入的凭据对不上。
 

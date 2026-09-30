@@ -14,10 +14,6 @@ DRINODE="${DRINODE:-/dev/dri/renderD128}"
 
 mkdir -p "$HOME/.vnc" "$HOME/.config/OrcaSlicer" "$HOME/.cache" "$HOME/.local/share"
 
-# Reduce WebKitGTK (OrcaSlicer's embedded browser) memory/compositing overhead
-export WEBKIT_DISABLE_COMPOSITING_MODE=1
-export WEBKIT_DISABLE_DMABUF_RENDERER=1
-
 # GTK file-dialog bookmark: just /models. Anything mounted under /models is
 # reachable from this single bookmark (keeps the image generic for distribution).
 mkdir -p "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-4.0"
@@ -69,8 +65,6 @@ EOF
 # Session startup: window manager + OrcaSlicer
 cat > "$HOME/.vnc/xstartup" <<'XEOF'
 #!/bin/bash
-export WEBKIT_DISABLE_COMPOSITING_MODE=1
-export WEBKIT_DISABLE_DMABUF_RENDERER=1
 openbox-session &
 exec /opt/orcaslicer/AppRun
 XEOF

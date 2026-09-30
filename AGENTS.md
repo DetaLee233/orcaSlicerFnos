@@ -130,6 +130,7 @@ bash build_fpk.sh
 | 打包后文件权限是 `000` | 该环境 shell 的 `umask` 可能是 0777。`build_fpk.sh` 已 `umask 022` 并显式 `chmod`，注意别再引入。 |
 | 网关报 `setsockopt ... Operation not supported` | Unix socket 上不要设 `disable_nagle_algorithm`/TCP_NODELAY（gateway 已用 `BaseRequestHandler`）。 |
 | 直接改了安装的应用不生效 | 需要 `systemctl restart trim_app_center`；桌面还要 `Ctrl+F5`。 |
+| OrcaSlicer 登录弹窗点进去无法聚焦/键盘打不了字 | 不要加 `WEBKIT_DISABLE_COMPOSITING_MODE`/`WEBKIT_DISABLE_DMABUF_RENDERER`（能省内存，但会破坏 WebKit 输入焦点），已移除。 |
 
 ---
 
@@ -151,7 +152,8 @@ bash build_fpk.sh
   加 `LIBVA_DRIVER_NAME=radeonsi` 也无效 → 已移除该环境变量（避免强制，分发更干净）。
 - `start.sh` 的 `kasmvnc.yaml` 加了编码调参：`encoding.max_frame_rate=60`、
   `video_encoding_mode.enter/exit... {time_threshold:2, area_threshold:20%}` → **实测无明显改善**。
-- WebKit 合成环境变量（`WEBKIT_DISABLE_COMPOSITING_MODE=1` 等）是省**内存**的，与本问题无关。
+- ~~WebKit 合成环境变量~~（`WEBKIT_DISABLE_COMPOSITING_MODE=1` / `WEBKIT_DISABLE_DMABUF_RENDERER=1`）：
+  曾用来省内存（~1.1G→0.9G），但会导致 OrcaSlicer **登录弹窗无法聚焦、键盘打不了字**，**已移除**。
 
 **结论**：这是 VNC 串流对“非均匀运动”的固有短板，不是配置错误。Web 端缩放/滚动顺、旋转/复杂动画卡属正常。
 
