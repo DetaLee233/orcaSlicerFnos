@@ -1,0 +1,58 @@
+#!/bin/bash
+set -u
+HERE="$(cd "$(dirname "$0")" && pwd)"
+TARGET="${TRIM_APPDEST:-$HERE/../target}"
+COMPOSE="$TARGET/app/docker-compose.yaml"
+PIDFILE="$TARGET/gateway.pid"
+SOCK="$TARGET/app.sock"
+GWL="$TARGET/gateway.log"
+export TRIM_APPNAME="${TRIM_APPNAME:-orcaslicer}"
+export TRIM_APPDEST="$TARGET"
+
+gw_pid() { [ -f "$PIDFILE" ] && cat "$PIDFILE" 2>/dev/null; }
+gw_running() { local p; p="$(gw_pid)"; [ -n "$p" ] && kill -0 "$p" 2>/dev/null; }
+
+start_gw() {
+  gw_running && return 0
+  rm -f "$SOCK"
+  setsid python3 "$TARGET/gateway.py" >>"$GWL" 2>&1 </dev/null &
+  i=0
+  while [ $i -lt 20 ]; do
+    sleep 0.5
+    gw_running && return 0
+    i=$((i + 1))
+  done
+  return 0
+}
+
+stop_gw() {
+  local p; p="$(gw_pid)"
+  if [ -n "$p" ] && kill -0 "$p" 2>/dev/null; then
+    kill "$p" 2>/dev/null
+    i=0
+    while [ $i -lt 12 ]; do
+      sleep 0.5
+      kill -0 "$p" 2>/dev/null || break
+      i=$((i + 1))
+    done
+    kill -9 "$p" 2>/dev/null
+  fi
+  rm -f "$PIDFILE" "$SOCK"
+}
+
+case "$1" in
+  start)
+    mkdir -p /var/apps/orcaslicer/shares/config /var/apps/orcaslicer/shares/cache /var/apps/orcaslicer/shares/models 2>/dev/null
+    docker compose -f "$COMPOSE" up -d
+    start_gw
+    ;;
+  stop)
+    stop_gw
+    docker compose -f "$COMPOSE" stop
+    ;;
+  status)
+    gw_running || exit 3
+    docker compose -f "$COMPOSE" ps -q 2>/dev/null | grep -q . || exit 3
+    ;;
+  *) exit 1 ;;
+esac

@@ -1,0 +1,13 @@
+# Large binaries / build artifacts (exceed GitHub's 100MB per-file limit)
+Orca.AppImage
+*.fpk
+dist/
+.fpkbuild/
+
+# Local runtime data
+data/
+models/
+
+# Misc
+*.log
+.DS_Store

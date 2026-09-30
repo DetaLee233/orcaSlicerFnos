@@ -1,0 +1,18 @@
+services:
+  orcaslicer:
+    image: orcaslicer:2.4.2
+    container_name: orcaslicer
+    restart: unless-stopped
+    devices:
+      - /dev/dri:/dev/dri
+    ports:
+      - "13000:3000"
+    environment:
+      - VNC_USER=abc
+      - VNC_PASSWORD=orcaslicer
+      - RESOLUTION=1920x1080
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data/config:/root/.config
+      - ./data/cache:/root/.cache
+      - ./models:/models
